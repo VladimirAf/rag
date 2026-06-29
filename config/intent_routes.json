@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "known_intents": [
+    {
+      "label": "product_specs_price",
+      "description": "Конкретная модель, характеристики, цена, наличие, ссылка на товар, сравнение по параметрам"
+    },
+    {
+      "label": "malfunction_howto",
+      "description": "Неисправность, код ошибки, что делать, пошаговое устранение, ремонт"
+    },
+    {
+      "label": "service_policy",
+      "description": "Гарантия, доставка, оплата, оформление заказа, возврат, общие правила сервиса"
+    },
+    {
+      "label": "recipe_cooking",
+      "description": "Рецепт, что приготовить, смузи, идеи блюд для техники"
+    },
+    {
+      "label": "manual_usage",
+      "description": "Инструкция по эксплуатации, как пользоваться, как включить, режимы работы"
+    },
+    {
+      "label": "product_recommendation",
+      "description": "Подбор по классу товара, рекомендации по критериям, что выбрать без конкретной модели"
+    },
+    {
+      "label": "meta_catalog",
+      "description": "Вопросы о содержимом базы, каталоге, что есть в системе (мета-запрос)"
+    }
+  ],
+  "intent_to_route": {
+    "product_specs_price": "products_first",
+    "malfunction_howto": "tickets_first",
+    "service_policy": "service_policy_route",
+    "recipe_cooking": "recipe_first",
+    "manual_usage": "manuals_first",
+    "product_recommendation": "products_seocrm",
+    "meta_catalog": "meta_products_files"
+  },
+  "routes": {
+    "fallback_default": {
+      "description": "Базовый пайплайн при undefined / низкой уверенности",
+      "stages": [
+        { "stage": "products" },
+        { "stage": "tickets" },
+        {
+          "stage": "files",
+          "files_data_type_order": ["files", "seocrm_article", "recipe"]
+        }
+      ]
+    },
+    "products_first": {
+      "description": "Цена/характеристики: сначала каталог",
+      "stages": [
+        { "stage": "products" },
+        { "stage": "tickets" },
+        {
+          "stage": "files",
+          "files_data_type_order": ["files", "seocrm_article", "recipe"]
+        }
+      ]
+    },
+    "tickets_first": {
+      "description": "Неисправность / что делать",
+      "stages": [
+        { "stage": "tickets" },
+        { "stage": "products" },
+        {
+          "stage": "files",
+          "files_data_type_order": ["files", "seocrm_article", "recipe"]
+        }
+      ]
+    },
+    "service_policy_route": {
+      "description": "Гарантия, доставка, оплата — статьи и правила после тикетов",
+      "stages": [
+        { "stage": "tickets" },
+        {
+          "stage": "files",
+          "files_data_type_order": ["seocrm_article", "files", "recipe"]
+        },
+        { "stage": "products" }
+      ]
+    },
+    "recipe_first": {
+      "description": "Рецепты: сначала recipe, затем статьи и каталог",
+      "stages": [
+        {
+          "stage": "files",
+          "files_data_type_order": ["recipe", "seocrm_article", "files"]
+        },
+        { "stage": "products" },
+        { "stage": "tickets" }
+      ]
+    },
+    "manuals_first": {
+      "description": "Инструкции и мануалы в базе файлов (без recipe — только эксплуатация)",
+      "stages": [
+        {
+          "stage": "files",
+          "files_data_type_order": ["files", "seocrm_article"]
+        },
+        { "stage": "products" },
+        { "stage": "tickets" }
+      ]
+    },
+    "products_seocrm": {
+      "description": "Подбор по критериям: каталог + SEO-статьи",
+      "stages": [
+        { "stage": "products" },
+        {
+          "stage": "files",
+          "files_data_type_order": ["seocrm_article", "files", "recipe"]
+        },
+        { "stage": "tickets" }
+      ]
+    },
+    "meta_products_files": {
+      "description": "Мета о базе: без tickets если не нужно",
+      "stages": [
+        { "stage": "products" },
+        {
+          "stage": "files",
+          "files_data_type_order": ["files", "seocrm_article", "recipe"]
+        }
+      ]
+    }
+  },
+  "aliases": {}
+}
